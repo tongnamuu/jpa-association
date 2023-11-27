@@ -4,6 +4,7 @@ import persistence.sql.ddl.DataDefinitionLanguageGenerator;
 import persistence.sql.ddl.TableCreator;
 import persistence.sql.ddl.TableRemover;
 import persistence.sql.vo.DatabaseField;
+import persistence.sql.vo.type.NoneColumn;
 
 public class DataDefinitionLanguageAssembler {
     private final DataDefinitionLanguageGenerator dataDefinitionLanguageGenerator;
@@ -21,8 +22,9 @@ public class DataDefinitionLanguageAssembler {
         sb.append(System.lineSeparator());
         int fieldSize = tableCreator.getFields().getDatabaseFields().size();
         for (int i = 0; i < fieldSize; i++) {
-            fillQueryWithField(sb, tableCreator.getFields().getDatabaseFields().get(i), i == fieldSize - 1);
+            fillQueryWithField(sb, tableCreator.getFields().getDatabaseFields().get(i));
         }
+        sb.deleteCharAt(sb.length() - 2);
         sb.append(");");
         return sb.toString();
     }
@@ -37,15 +39,16 @@ public class DataDefinitionLanguageAssembler {
         return sb.toString();
     }
 
-    private void fillQueryWithField(StringBuilder sb, DatabaseField databaseField, boolean isLast) {
+    private void fillQueryWithField(StringBuilder sb, DatabaseField databaseField) {
+        if(databaseField.getDatabaseType().equals(NoneColumn.getInstance())) {
+            return;
+        }
         sb.append(databaseField);
         if(databaseField.isPrimary()) {
             sb.append(" ");
             sb.append(getPrimaryKeyStrategy(databaseField));
         }
-        if (!isLast) {
-            sb.append(',');
-        }
+        sb.append(',');
         sb.append(System.lineSeparator());
     }
 
