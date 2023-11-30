@@ -2,6 +2,9 @@ package persistence.sql.vo;
 
 import jakarta.persistence.GenerationType;
 import java.util.Objects;
+
+import lombok.Builder;
+import persistence.sql.vo.association.OneToManyAssociation;
 import persistence.sql.vo.type.DatabaseType;
 
 public class DatabaseField {
@@ -11,14 +14,17 @@ public class DatabaseField {
     private final boolean isPrimary;
     private final GenerationType primaryKeyGenerationType;
     private final boolean isNullable;
+    private final OneToManyAssociation oneToManyAssociation;
 
-    public DatabaseField(String databaseFieldName, String originalFieldName, DatabaseType databaseType, boolean isPrimary, GenerationType primaryKeyGenerationType, boolean isNullable) {
+    @Builder
+    private DatabaseField(String databaseFieldName, String originalFieldName, DatabaseType databaseType, boolean isPrimary, GenerationType primaryKeyGenerationType, boolean isNullable, OneToManyAssociation oneToManyAssociation) {
         this.databaseFieldName = Objects.requireNonNull(databaseFieldName);
         this.originalFieldName = Objects.requireNonNull(originalFieldName);
         this.databaseType = Objects.requireNonNull(databaseType);
         this.isPrimary = isPrimary;
         this.primaryKeyGenerationType = primaryKeyGenerationType;
         this.isNullable = isNullable;
+        this.oneToManyAssociation = oneToManyAssociation;
     }
 
     public boolean isPrimary() {

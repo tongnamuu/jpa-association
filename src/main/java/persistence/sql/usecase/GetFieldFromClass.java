@@ -4,12 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
 import persistence.sql.vo.DatabaseField;
 import persistence.sql.vo.DatabaseFields;
+import persistence.sql.vo.association.OneToManyAssociation;
 import persistence.sql.vo.type.TypeConverter;
 
 public class GetFieldFromClass {
@@ -39,7 +43,23 @@ public class GetFieldFromClass {
                 type = GenerationType.IDENTITY;
             }
         }
-        return new DatabaseField(name, field.getName(), TypeConverter.convert(field), isPrimary,
-            type, isNullable);
+
+        OneToManyAssociation oneToManyAssociation = null;
+        if (field.isAnnotationPresent(OneToMany.class)) {
+            OneToMany annotation = field.getAnnotation(OneToMany.class);
+            oneToManyAssociation = new OneToManyAssociation(
+                annotation.targetEntity(),
+                field.getType()
+            );
+        }
+        return DatabaseField.builder()
+                            .databaseFieldName(name)
+                            .originalFieldName(field.getName())
+                            .databaseType(TypeConverter.convert(field))
+                            .isPrimary(isPrimary)
+                            .primaryKeyGenerationType(type)
+                            .isNullable(isNullable)
+                            .oneToManyAssociation(oneToManyAssociation)
+                            .build();
     }
 }
